@@ -1,0 +1,36 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/security
+    http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!-- No security for static resources -->
+
+	<http pattern="/resources/**" security="none" />
+
+	<!-- Security for the rest of my mappings -->
+
+	<http auto-config="true">
+		<intercept-url pattern="/admin/**" access="hasAuthority('ADMIN')" />
+		
+		<intercept-url pattern="/**" access="permitAll" />
+		<form-login login-page="/login" default-target-url="/"
+			authentication-failure-url="/login?error" />
+	 	<logout logout-success-url="/"  logout-url="/logout"/> 
+		<csrf disabled="true" />
+		
+	</http>
+
+	<authentication-manager>
+
+		<authentication-provider>
+
+			<jdbc-user-service data-source-ref="datasource"
+				users-by-username-query="SELECT email, password, 'TRUE' as enabled FROM user WHERE email = ?"
+				authorities-by-username-query="SELECT email, role FROM user WHERE email = ?" />
+		</authentication-provider>
+
+	</authentication-manager>
+
+</beans:beans>
